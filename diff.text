@@ -1,0 +1,118 @@
+diff --git a/app/app.vue b/app/app.vue
+index b24ed84..91b34cf 100644
+--- a/app/app.vue
++++ b/app/app.vue
+@@ -1,6 +1,30 @@
+ <template>
+-	<div class="navbar bg-base-100 shadow-sm">
+-		<a class="text-xl">PHASE</a>
+-	</div>
+-	<NuxtPage />
++  <div class="h-dvh w-full p-4">
++    <div
++      class="h-full w-full border border-neutral bg-base-200 grid grid-rows-[auto_1fr] grid-cols-[300px_1fr_300px] rounded-box shadow-2xl">
++      <TopBar class="col-span-3" />
++
++      <SideBarL :activeId="activeId" @select="handleSelect" />
++
++      <div class="grid grid-rows-[2fr_1fr]">
++        <MainView :activeId="activeId" @select="handleSelect" />
++        <div class="grid grid-cols-[2fr_1fr]">
++          <Terminal />
++          <ControlBox />
++        </div>
++      </div>
++
++      <SideBarR />
++    </div>
++  </div>
+ </template>
++
++<script setup>
++import { ref } from 'vue'
++
++const activeId = ref(null)
++
++const handleSelect = (id) => {
++  activeId.value = id
++}
++</script>
+diff --git a/app/assets/css/main.css b/app/assets/css/main.css
+index 2b68d5c..d2b9f38 100644
+--- a/app/assets/css/main.css
++++ b/app/assets/css/main.css
+@@ -1,4 +1,6 @@
+ @import "tailwindcss";
+ @plugin "daisyui" {
+-  themes: nord --default, sunset --prefersdark;
+-};
++	themes:
++		nord --default,
++		sunset --prefersdark;
++}
+diff --git a/nuxt.config.ts b/nuxt.config.ts
+index 58056c9..21de1fe 100644
+--- a/nuxt.config.ts
++++ b/nuxt.config.ts
+@@ -6,4 +6,5 @@ export default defineNuxtConfig({
+ 	css: ["~/assets/css/main.css"],
+ 	vite: { plugins: [tailwindcss()] },
+ 	modules: ["@nuxt/icon", "@nuxt/eslint"],
++	ssr: false,
+ });
+diff --git a/package-lock.json b/package-lock.json
+index 540d55d..ab40844 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -10,6 +10,7 @@
+ 				"@nuxt/eslint": "^1.15.2",
+ 				"@nuxt/icon": "^2.2.1",
+ 				"@tailwindcss/vite": "^4.2.2",
++				"chart.js": "^4.5.1",
+ 				"daisyui": "^5.5.19",
+ 				"nuxt": "^4.1.3",
+ 				"tailwindcss": "^4.2.2",
+@@ -1386,6 +1387,12 @@
+ 				"@jridgewell/sourcemap-codec": "^1.4.14"
+ 			}
+ 		},
++		"node_modules/@kurkle/color": {
++			"version": "0.3.4",
++			"resolved": "https://registry.npmjs.org/@kurkle/color/-/color-0.3.4.tgz",
++			"integrity": "sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==",
++			"license": "MIT"
++		},
+ 		"node_modules/@kwsites/file-exists": {
+ 			"version": "1.1.1",
+ 			"resolved": "https://registry.npmjs.org/@kwsites/file-exists/-/file-exists-1.1.1.tgz",
+@@ -5993,6 +6000,18 @@
+ 			"integrity": "sha512-HRQyTk2/YPEkt9TnUPbOpr64Uw3KOicFWPVBb+xiHvd6eBx/qPr9xqfBFDT8P2vWsvvz4jbEkfDe71W3VyNu2w==",
+ 			"license": "MIT"
+ 		},
++		"node_modules/chart.js": {
++			"version": "4.5.1",
++			"resolved": "https://registry.npmjs.org/chart.js/-/chart.js-4.5.1.tgz",
++			"integrity": "sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw==",
++			"license": "MIT",
++			"dependencies": {
++				"@kurkle/color": "^0.3.0"
++			},
++			"engines": {
++				"pnpm": ">=8"
++			}
++		},
+ 		"node_modules/chokidar": {
+ 			"version": "5.0.0",
+ 			"resolved": "https://registry.npmjs.org/chokidar/-/chokidar-5.0.0.tgz",
+diff --git a/package.json b/package.json
+index e4ad64e..c5969af 100644
+--- a/package.json
++++ b/package.json
+@@ -17,6 +17,7 @@
+ 		"@nuxt/eslint": "^1.15.2",
+ 		"@nuxt/icon": "^2.2.1",
+ 		"@tailwindcss/vite": "^4.2.2",
++		"chart.js": "^4.5.1",
+ 		"daisyui": "^5.5.19",
+ 		"nuxt": "^4.1.3",
+ 		"tailwindcss": "^4.2.2",
