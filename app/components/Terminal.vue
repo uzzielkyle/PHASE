@@ -1,30 +1,49 @@
-<script setup>
-import { onMounted } from 'vue'
-import TerminalLine from '@/components/TerminalLine.vue'
-import { useTerminal } from '@/composables/useTerminal'
+<template>
+	<div
+		class="h-full flex flex-col overflow-hidden bg-base-200 border-r border-base-300"
+	>
+		<div
+			class="flex justify-between py-2 px-4 border-b border-base-300 shrink-0 bg-base-100"
+		>
+			<div class="text-[10px] font-bold uppercase opacity-60">
+				Execution Stream
+			</div>
+			<div class="text-[10px] font-bold flex gap-2 items-center">
+				<div class="status status-success status-xs"></div>
+				<div class="opacity-70">Ready</div>
+			</div>
+		</div>
 
-const { lines, addLine } = useTerminal()
+		<div
+			ref="scrollContainer"
+			class="flex-1 overflow-y-auto p-4 space-y-1 font-mono text-xs bg-base-300/50"
+		>
+			<TerminalLine v-for="line in lines" :key="line.id" :line="line" />
+		</div>
+	</div>
+</template>
+
+<script setup>
+import { onMounted, ref, watch, nextTick } from "vue";
+import TerminalLine from "@/components/TerminalLine.vue";
+import { useTerminal } from "@/composables/useTerminal";
+
+const { lines, addLine } = useTerminal();
+const scrollContainer = ref(null);
 
 onMounted(() => {
-  addLine('Initializing viewports...')
-  addLine('Viewports ready.', 'success')
-})
+	addLine("Initializing GA Environment...");
+	addLine("Parallel Slots Ready (1-6).", "success");
+});
+
+watch(
+	lines,
+	async () => {
+		await nextTick();
+		if (scrollContainer.value) {
+			scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
+		}
+	},
+	{ deep: true },
+);
 </script>
-
-<template>
-  <div class="size-full flex flex-col flex-1">
-    <div class="flex justify-between bg-base-100 py-3 px-4">
-      <div class="text-xs font-bold uppercase">
-        Execution Stream
-      </div>
-      <div class="text-xs font-thin flex gap-2 items-center">
-        <div class="status status-success status-sm"></div>
-        <div>Ready</div>
-      </div>
-    </div>
-
-    <div class="flex flex-col flex-1 bg-base-300 p-4 gap-2 overflow-auto">
-      <TerminalLine v-for="line in lines" :key="line.id" :line="line" />
-    </div>
-  </div>
-</template>

@@ -1,146 +1,142 @@
 <template>
-  <div class="p-4">
-    <div class="space-y-2">
-      <div>
-        <span class="font-bold uppercase text-xs">Analytics</span>
-      </div>
-      <div class="flex gap-2 font-mono">
-        <div class="flex-1 border border-neutral rounded p-4 bg-base-100">
-          <div class="text-xs">Best Fitness</div>
-          <div class="text-base font-bold text-blue-400">0.9316</div>
-        </div>
-        <div class="flex-1 border border-neutral rounded p-4 bg-base-100">
-          <div class="text-xs">Generation</div>
-          <div class="text-base font-bold">24</div>
-        </div>
-      </div>
+	<div class="h-full border-l border-base-300 bg-base-100/50 overflow-y-auto">
+		<div class="p-4 space-y-6">
+			<div>
+				<div class="font-bold uppercase text-[10px] opacity-60">
+					Global Statistics
+				</div>
+				<div class="mt-4 space-y-4">
+					<div class="grid grid-cols-2 gap-4">
+						<div class="border border-base-300 rounded p-3 bg-base-200">
+							<div class="text-[10px] uppercase opacity-50">Generation</div>
+							<div class="text-xl font-bold font-mono">{{ generation }}</div>
+						</div>
+						<div class="border border-base-300 rounded p-3 bg-base-200">
+							<div class="text-[10px] uppercase opacity-50">Best Fitness</div>
+							<div class="text-xl font-bold font-mono text-primary">
+								{{ isFinite(bestFitness) ? bestFitness.toFixed(4) : "0.0000" }}
+							</div>
+						</div>
+					</div>
 
-      <div class="space-y-2">
-        <div>
-          <span class="font-bold uppercase text-xs">Comparative Metrics</span>
-        </div>
-        <div class="flex-col space-y-2 font-mono font-thin">
-          <div class="flex-1 border border-neutral rounded p-4 bg-base-100">
-            <div class="text-xs font-normal opacity-80 mb-2">Population Average</div>
-            <div class="text-xs flex justify-between">
-              <div>Avg. Delay:</div>
-              <div class="text-black dark:text-white">17.56s</div>
-            </div>
-            <div class="text-xs flex justify-between">
-              <div>Avg. Waiting:</div>
-              <div class="text-black dark:text-white">13.56s</div>
-            </div>
-            <div class="text-xs flex justify-between">
-              <div>Avg. Stops:</div>
-              <div class="text-black dark:text-white">6.9</div>
-            </div>
+					<div
+						class="border border-base-300 rounded p-4 bg-base-200/50 space-y-2"
+					>
+						<div class="text-xs flex justify-between">
+							<div class="opacity-70">Total Simulations:</div>
+							<div class="font-bold">{{ totalSimulations }}</div>
+						</div>
+						<div class="text-xs flex justify-between">
+							<div class="opacity-70">Active Slots:</div>
+							<div class="text-primary font-bold">{{ activeSlotsCount }}/6</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <hr class="my-2" />
-            <div class="text-xs flex justify-between">
-              <div>CO/N0x:</div>
-              <div class="text-red-400">350.0 / 110.0 mg</div>
-            </div>
-          </div>
+			<div class="">
+				<div>
+					<span class="font-bold uppercase text-[10px] opacity-60"
+						>Fitness Convergence</span
+					>
+				</div>
 
-          <div class="relative flex-1 border border-primary/40 rounded p-4 bg-primary/10">
-            <div class="absolute top-1.5 right-1.5 badge badge-primary badge-xs uppercase">Top</div>
-            <div class="text-xs font-bold text-primary opacity-80 mb-2">Best Performer: ID_012</div>
-            <div>
-              <div class="text-xs flex justify-between">
-                <div>Min. Delay:</div>
-                <div>12.32s</div>
-              </div>
-              <div class="text-xs flex justify-between">
-                <div>Min. Duration:</div>
-                <div>100.0s</div>
-              </div>
-              <div class="text-xs flex justify-between">
-                <div>Min. Emissions:</div>
-                <div>224mg</div>
-              </div>
-            </div>
-          </div>
-        </div>
+				<div class="mt-2 h-64 bg-base-300/30 rounded p-2">
+					<canvas id="fitnessChart"></canvas>
+				</div>
+			</div>
 
-      </div>
+			<div class="space-y-4">
+				<div>
+					<span class="font-bold uppercase text-[10px] opacity-60"
+						>Engine Parameters</span
+					>
+				</div>
 
-      <div class="">
-        <div>
-          <span class="font-bold uppercase text-xs opacity-60">Fitness Convergence</span>
-        </div>
-
-        <div class="mt-2 h-80">
-          <canvas id="fitnessChart"></canvas>
-        </div>
-      </div>
-
-      <div>
-        <div class="flex justify-between">
-          <div class="font-bold uppercase text-xs opacity-60 text-left">Network Stability</div>
-          <div class="font-mono font-thin text-xs text-left text-green-300">70%</div>
-        </div>
-        <progress class="progress progress-success" value="70" max="100"></progress>
-      </div>
-    </div>
-  </div>
+				<div class="grid grid-cols-1 gap-2">
+					<div
+						class="flex justify-between items-center text-xs p-2 bg-base-200 rounded border border-base-300"
+					>
+						<span class="opacity-70">Pool Size (HOF)</span>
+						<span class="font-mono font-bold">{{ poolSize }}</span>
+					</div>
+					<div
+						class="flex justify-between items-center text-xs p-2 bg-base-200 rounded border border-base-300"
+					>
+						<span class="opacity-70">Mutation Rate</span>
+						<span class="font-mono font-bold"
+							>{{ (mutationRate * 100).toFixed(0) }}%</span
+						>
+					</div>
+					<div
+						class="flex justify-between items-center text-xs p-2 bg-base-200 rounded border border-base-300"
+					>
+						<span class="opacity-70">Stagger Delay</span>
+						<span class="font-mono font-bold">1000ms</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import Chart from 'chart.js/auto'
+import { onMounted, watch, computed } from "vue";
+import Chart from "chart.js/auto";
+import { useSimulation } from "~/composables/useSimulation";
+
+const {
+	generation,
+	bestFitness,
+	slots,
+	totalSimulations,
+	poolSize,
+	mutationRate,
+} = useSimulation();
+
+const activeSlotsCount = computed(
+	() => slots.value.filter((s) => s.active).length,
+);
+
+let chart = null;
+const fitnessHistory = [];
 
 onMounted(() => {
-  const ctx = document.getElementById('fitnessChart')
+	const ctx = document.getElementById("fitnessChart");
 
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: Array.from({ length: 24 }, (_, i) => `Gen ${i + 1}`),
-      datasets: [
-        {
-          label: 'Best Fitness',
-          data: [
-            0.45, 0.52, 0.60, 0.66, 0.70, 0.74,
-            0.78, 0.81, 0.84, 0.86, 0.88, 0.89,
-            0.90, 0.905, 0.91, 0.915, 0.92,
-            0.925, 0.928, 0.929, 0.93, 0.931,
-            0.9313, 0.9316
-          ],
-          borderColor: '#60a5fa',
-          backgroundColor: 'rgba(96,165,250,0.2)',
-          tension: 0.3,
-          fill: true,
-          pointRadius: 2
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        x: {
-          ticks: {
-            display: false
-          },
-          grid: {
-            display: false
-          }
-        },
-        y: {
-          ticks: {
-            color: '#9ca3af'
-          },
-          grid: {
-            color: 'rgba(255,255,255,0.05)'
-          }
-        }
-      }
-    }
-  })
-})
+	chart = new Chart(ctx, {
+		type: "line",
+		data: {
+			labels: [],
+			datasets: [
+				{
+					label: "Best Fitness",
+					data: fitnessHistory,
+					borderColor: "#60a5fa",
+					backgroundColor: "rgba(96,165,250,0.2)",
+					tension: 0.3,
+					fill: true,
+					pointRadius: 2,
+				},
+			],
+		},
+		options: {
+			responsive: true,
+			maintainAspectRatio: false,
+			plugins: { legend: { display: false } },
+			scales: {
+				x: { ticks: { display: false }, grid: { display: false } },
+				y: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.1)" } },
+			},
+		},
+	});
+});
+
+watch(bestFitness, (newVal) => {
+	if (chart && isFinite(newVal)) {
+		fitnessHistory.push(newVal);
+		chart.data.labels.push(`G${generation.value}`);
+		chart.update();
+	}
+});
 </script>

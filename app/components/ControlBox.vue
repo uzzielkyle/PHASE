@@ -1,92 +1,97 @@
 <template>
-  <div class="py-3 px-4 size-full space-y-4">
-    <div class="space-y-2">
-      <div class="font-bold text-xs uppercase opacity-60">Intersection Map</div>
+	<div class="h-full bg-base-100 flex flex-col overflow-hidden">
+		<div class="p-3 shrink-0 border-b border-neutral/50">
+			<div class="font-bold text-[10px] uppercase opacity-60">
+				System Controls
+			</div>
+		</div>
 
-      <div class="grid grid-cols-2 gap-2">
-        <button class="btn" :class="selectedMap === 'psu' ? 'btn-secondary' : 'btn-neutral'"
-          @click="selectedMap = 'psu'">
-          PSU Tiniguiban
-        </button>
+		<div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+			<div class="space-y-2">
+				<div class="font-bold text-[10px] uppercase opacity-40">Network</div>
+				<button
+					class="btn btn-neutral btn-sm btn-block"
+					@click="triggerUpload('network')"
+				>
+					Upload Network
+				</button>
+			</div>
 
-        <button class="btn" :class="selectedMap === 'rizal' ? 'btn-secondary' : 'btn-neutral'"
-          @click="selectedMap = 'rizal'">
-          Rizal Avenue
-        </button>
-      </div>
-    </div>
+			<div class="space-y-2">
+				<div class="font-bold text-[10px] uppercase opacity-40">Route</div>
+				<button
+					class="btn btn-neutral btn-sm btn-block"
+					@click="triggerUpload('route')"
+				>
+					Upload Route
+				</button>
+			</div>
 
-    <div class="space-y-2">
-      <div class="font-bold text-xs uppercase opacity-60">Configuration Files</div>
-      <div class="grid grid-cols-4 gap-2">
-        <button class="btn btn-neutral" @click="triggerUpload('original')">Original</button>
-        <button class="btn btn-neutral" @click="triggerUpload('pso')">PSO</button>
-        <button class="btn btn-neutral" @click="triggerUpload('wm')">WM</button>
-        <button class="btn btn-neutral" @click="triggerUpload('gawm')">GA-WM</button>
+			<div class="space-y-2">
+				<div class="font-bold text-[10px] uppercase opacity-40">
+					Traffic Light
+				</div>
+				<button
+					class="btn btn-neutral btn-sm btn-block"
+					@click="triggerUpload('traffic-light')"
+				>
+					Upload Traffic Light
+				</button>
+			</div>
 
-        <input ref="fileInput" type="file" class="hidden" @change="handleFileUpload" />
-      </div>
-    </div>
+			<input
+				ref="fileInput"
+				type="file"
+				class="hidden"
+				@change="handleFileUpload"
+			/>
+		</div>
 
-    <div class="space-y-2">
-      <div class="font-bold text-xs uppercase opacity-60">Algorithm Protocol</div>
-      <div class="grid grid-cols-4 gap-2">
-
-        <button class="btn" :class="isSelected('original') ? 'btn-secondary' : 'btn-neutral'"
-          @click="toggleProtocol('original')">
-          Original
-        </button>
-
-        <button class="btn" :class="isSelected('pso') ? 'btn-secondary' : 'btn-neutral'" @click="toggleProtocol('pso')">
-          PSO
-        </button>
-
-        <button class="btn" :class="isSelected('wm') ? 'btn-secondary' : 'btn-neutral'" @click="toggleProtocol('wm')">
-          WM
-        </button>
-
-        <button class="btn" :class="isSelected('gawm') ? 'btn-secondary' : 'btn-neutral'"
-          @click="toggleProtocol('gawm')">
-          GA-WM
-        </button>
-
-      </div>
-    </div>
-
-    <button class="btn btn-primary btn-block">Run Simulation</button>
-  </div>
+		<div class="p-4 bg-base-200/50 border-t border-neutral shrink-0">
+			<button
+				class="btn btn-block"
+				:class="isRunning ? 'btn-error' : 'btn-primary'"
+				@click="toggleSimulation"
+			>
+				{{ isRunning ? "Stop Simulation" : "Run Simulation" }}
+			</button>
+		</div>
+	</div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
+import { useSimulation } from "~/composables/useSimulation";
 
-const selectedMap = ref('psu')
-const selectedProtocols = ref([])
-const currentUploadType = ref(null)
-const fileInput = ref(null)
+const { setFile, startGA, stopGA, isRunning } = useSimulation();
 
-function isSelected(type) {
-  return selectedProtocols.value.includes(type)
-}
-
-function toggleProtocol(type) {
-  if (isSelected(type)) {
-    selectedProtocols.value = selectedProtocols.value.filter(p => p !== type)
-  } else {
-    selectedProtocols.value.push(type)
-  }
-}
+const currentUploadType = ref(null);
+const fileInput = ref(null);
 
 function triggerUpload(type) {
-  currentUploadType.value = type
-  fileInput.value.click()
+	currentUploadType.value = type;
+	fileInput.value.click();
 }
 
 function handleFileUpload(event) {
-  const file = event.target.files[0]
-  if (!file) return
+	const file = event.target.files[0];
+	if (!file) return;
 
-  console.log('Uploaded for:', currentUploadType.value, file)
-  event.target.value = ''
+	const typeMap = {
+		network: "network",
+		route: "route",
+		"traffic-light": "trafficLight",
+	};
+
+	setFile(typeMap[currentUploadType.value], file);
+	event.target.value = "";
 }
+
+const toggleSimulation = () => {
+	if (isRunning.value) {
+		stopGA();
+	} else {
+		startGA();
+	}
+};
 </script>
